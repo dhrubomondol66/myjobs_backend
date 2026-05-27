@@ -185,9 +185,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.abspath(os.path.join(BASE_DIR, "staticfiles"))
 STATICFILES_DIRS = []
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# Ensure staticfiles directory exists
+import sys
+if 'collectstatic' in sys.argv:
+    if not os.path.exists(STATIC_ROOT):
+        os.makedirs(STATIC_ROOT, exist_ok=True)
 
 # Media files (User uploads)
 MEDIA_URL = '/media/'
