@@ -11,15 +11,15 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
 from decouple import config
-# from pathlib import Path
 import environ
 from dotenv import load_dotenv
 load_dotenv()
+
 env = environ.Env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".." ))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
 # Read .env file in the project root
@@ -76,9 +76,13 @@ INSTALLED_APPS = [
     "reviews",
 ]
 
+# Required for django-allauth
+SITE_ID = 1
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
