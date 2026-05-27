@@ -154,7 +154,7 @@ python-jwt==4.1.0
 python-multipart==0.0.21
 pytokens==0.3.0
 pytz==2025.1
-pywin32==306
+
 PyYAML==6.0.3
 pyzmq==25.1.2
 qrcode==8.2
