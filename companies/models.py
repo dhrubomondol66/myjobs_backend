@@ -2,18 +2,6 @@ from django.db import models
 from django.conf import settings
 
 class Company(models.Model):
-    SIZE_CHOICES = [
-        ('1-10', '1-10'),
-        ('11-50', '11-50'),
-        ('51-200', '51-200'),
-        ('201-500', '201-500'),
-        ('501-1000', '501-1000'),
-        ('1001-5000', '1001-5000'),
-        ('5001-10000', '5001-10000'),
-        ('10001-50000', '10001-50000'),
-        ('50001-100000', '50001-100000'),
-        ('100001+', '100001+'),
-    ]
     COMPANY_TYPES = [
         ('LOCAL', 'Local'),
         ('MNC', 'MNC'),
@@ -23,7 +11,7 @@ class Company(models.Model):
     name = models.CharField(max_length=255, unique=True)
     type = models.CharField(max_length=20, choices=COMPANY_TYPES)
     industry = models.CharField(max_length=100)
-    manpower_size = models.CharField(max_length=20, choices=SIZE_CHOICES)
+    manpower_size = models.CharField(max_length=20)
     headquarters = models.CharField(max_length=255)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
