@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                     ("TWO", "2 festival bonuses"),
                     ("TWO_PERFORMANCE", "2 bonuses + performance"),
                 ],
-                max_length=30,
+                max_length=40,
             ),
         ),
         migrations.AlterField(
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                     ("15K_30K", "৳15k–৳30k"),
                     ("30K_PLUS", "৳30k+"),
                 ],
-                max_length=20,
+                max_length=40,
             ),
         ),
         migrations.AlterField(

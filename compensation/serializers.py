@@ -1,8 +1,19 @@
 from rest_framework import serializers
 from .models import CompensationData
+from companies.models import Company
 
 
 class CompensationSerializer(serializers.ModelSerializer):
+
+    company = serializers.SlugRelatedField(
+        slug_field='name',
+        queryset=Company.objects.all()
+    )
+
+    company_name = serializers.CharField(
+        source='company.name',
+        read_only=True
+    )
 
     class Meta:
         model = CompensationData
@@ -11,12 +22,13 @@ class CompensationSerializer(serializers.ModelSerializer):
             'id',
             'user',
             'company',
+            'company_name',
             'job_title',
             'department',
             'base_salary',
             'fringe_benefits_value',
             'other_allowances',
-            'bonus_amount',
+            'annual_bonus_structure',
             'market_fairness_rating',
             'is_anonymous',
             'year',
@@ -29,8 +41,10 @@ class CompensationSerializer(serializers.ModelSerializer):
         ]
 
     def validate_base_salary(self, value):
+
         if value <= 0:
             raise serializers.ValidationError(
                 "Base salary must be greater than 0"
             )
+
         return value
