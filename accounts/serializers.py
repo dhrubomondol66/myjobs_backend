@@ -62,7 +62,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
             force_bytes(user.pk)
         )
         token = default_token_generator.make_token(user)
-        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+        frontend_url = os.getenv('FRONTEND_URL')
         reset_link = (
             f"{frontend_url}/reset-password/{uid}/{token}/"
         )
