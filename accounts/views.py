@@ -2,6 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+import traceback
 from rest_framework_simplejwt.views import TokenObtainPairView
 import logging
 
@@ -31,24 +32,15 @@ class ForgotPasswordView(APIView):
         try:
             serializer = ForgotPasswordSerializer(data=request.data)
             if not serializer.is_valid():
-                logger.warning(f"Forgot password validation failed: {serializer.errors}")
-                return Response(
-                    {
-                        "error": "Validation failed",
-                        "details": serializer.errors
-                    },
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({
-                "message": "Password reset link sent successfully to your email."
-            }, status=status.HTTP_200_OK)
+            return Response({"message": "Password reset link sent successfully."}, status=status.HTTP_200_OK)
         except Exception as e:
-            logger.error(f"Forgot password error: {str(e)}")
             return Response(
                 {
                     "error": "Failed to process password reset request",
-                    "details": str(e)
+                    "details": str(e),
+                    "traceback": traceback.format_exc()  # ← shows full error
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
