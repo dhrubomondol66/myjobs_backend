@@ -1,6 +1,11 @@
+import token
+
 from django.core.mail import send_mail
 from rest_framework import serializers
 import os
+
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.tokens import default_token_generator
@@ -63,13 +68,18 @@ class ForgotPasswordSerializer(serializers.Serializer):
         frontend_url = os.getenv('FRONTEND_URL')
         reset_link = f"{frontend_url}/reset-password/{uid}/{token}/"
 
-        send_mail(
-            subject="Password Reset - MyJobs",
-            message=f"Hello {user.username},\n\nReset your password:\n{reset_link}\n\nExpires in 24 hours.\n\nMyJobs Team",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
+        configuration = sib_api_v3_sdk.Configuration()
+        configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')
+        api_instance = sib_api_v3_sdk.TransactionalEmailsApi(
+            sib_api_v3_sdk.ApiClient(configuration)
         )
+        send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+            to=[{"email": email, "name": user.username}],
+            sender={"email": "dhrubomondol66@gmail.com", "name": "MyJobs"},
+            subject="Password Reset - MyJobs",
+            text_content=f"Hello {user.username},\n\nReset your password:\n{reset_link}\n\nExpires in 24 hours.\n\nMyJobs Team"
+        )
+        api_instance.send_transac_email(send_smtp_email)
 
         return user
 

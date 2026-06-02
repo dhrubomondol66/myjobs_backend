@@ -27,3 +27,4 @@ dj-rest-auth==7.0.1
 
 cryptography==42.0.5
 resend
+sib-api-v3-sdk
