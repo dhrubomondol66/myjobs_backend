@@ -160,15 +160,13 @@ AUTHENTICATION_BACKENDS = (
 )
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# The following SendGrid settings are retained for production but ignored in dev
-EMAIL_HOST = "smtp.sendgrid.net"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "apikey"
-EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')
-# Use a placeholder sender for local testing
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'no-reply@myjobs.local')
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 465        # ← changed from 587
+EMAIL_USE_TLS = False   # ← changed to False
+EMAIL_USE_SSL = True    # ← added
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
