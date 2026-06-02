@@ -1,11 +1,12 @@
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated
-from .models import SalaryAnalytics
-from .serializers import SalaryAnalyticsSerializer, SalaryStatsView
+from compensation.models import CompensationData
+from .serializers import SalaryAnalyticsSerializer
 from rest_framework.response import Response
 
 
-from django.db.models import Count, Avg, Min, Max
+from django.db.models.functions import Coalesce
+from django.db.models import DecimalField, Value, Avg, Min, Max, Count, Q
 from django.contrib.auth import get_user_model
 from companies.models import Company
 from reviews.models import CompanyReview
@@ -16,7 +17,7 @@ class AnalyticsSummaryView(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         total_reviews = CompanyReview.objects.count()
         companies_listed = Company.objects.count()
-        salary_data_points = SalaryAnalytics.objects.count()
+        salary_data_points = CompensationData.objects.count()
         active_users = get_user_model().objects.filter(is_active=True).count()
 
         top_companies_qs = (
@@ -34,7 +35,7 @@ class AnalyticsSummaryView(generics.GenericAPIView):
         ]
 
         salary_benchmarks_qs = (
-            SalaryAnalytics.objects.values('job_title')
+            CompensationData.objects.values('job_title')
             .annotate(min_salary=Min('base_salary'), max_salary=Max('base_salary'))
             .order_by('job_title')[:5]
         )
@@ -48,7 +49,7 @@ class AnalyticsSummaryView(generics.GenericAPIView):
         ]
 
         avg_salary_by_industry_qs = (
-            SalaryAnalytics.objects.values('company__industry')
+            CompensationData.objects.values('company__industry')
             .annotate(avg_salary=Avg('base_salary'))
             .order_by('-avg_salary')
         )
@@ -77,7 +78,7 @@ class SalaryAnalyticsListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]  # 🔥 IMPORTANT FIX
 
     def get_queryset(self):
-        queryset = SalaryAnalytics.objects.all()
+        queryset = CompensationData.objects.all()
 
         company = self.request.query_params.get("company")
         year = self.request.query_params.get("year")
@@ -89,6 +90,43 @@ class SalaryAnalyticsListView(generics.ListAPIView):
             queryset = queryset.filter(year=year)
 
         return queryset
+
+class SalaryStatsView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        queryset = CompensationData.objects.all()
+
+        stats = queryset.aggregate(
+            count=Count('id'),
+
+            average_salary=Coalesce(
+                Avg('base_salary'),
+                Value(0),
+                output_field=DecimalField()
+            ),
+
+            min_salary=Coalesce(
+                Min('base_salary'),
+                Value(0),
+                output_field=DecimalField()
+            ),
+
+            max_salary=Coalesce(
+                Max('base_salary'),
+                Value(0),
+                output_field=DecimalField()
+            ),
+
+            average_market_rating=Coalesce(
+                Avg('market_fairness_rating'),
+                Value(0)
+            ),
+
+            count_anonymous=Count('id', filter=Q(is_anonymous=True)),
+        )
+
+        return Response(stats)
 
 
 # class SalaryAnalyticsDetailView(generics.RetrieveAPIView):

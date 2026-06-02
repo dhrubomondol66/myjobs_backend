@@ -44,8 +44,14 @@ class UserProfileUpdateView(generics.UpdateAPIView):
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        return UserProfile.objects.filter(user=self.request.user)
+    def get_object(self):
+        profile, created = UserProfile.objects.get_or_create(
+            user=self.request.user,
+            defaults={
+                "full_name": self.request.user.username
+            }
+        )
+        return profile
 
 
 class UserProfileDeleteView(generics.DestroyAPIView):
