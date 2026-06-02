@@ -5,14 +5,16 @@ from companies.models import Company
 
 class CompensationSerializer(serializers.ModelSerializer):
 
-    company = serializers.PrimaryKeyRelatedField(
-        queryset=Company.objects.all()
+    company = serializers.SlugRelatedField(
+        queryset=Company.objects.all(),
+        slug_field='name'
     )
+
     company_name = serializers.CharField(
         source='company.name',
         read_only=True
     )
-    
+
     class Meta:
         model = CompensationData
 
