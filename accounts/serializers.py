@@ -1,4 +1,3 @@
-import token
 from django.core.mail import send_mail
 from rest_framework import serializers
 import os
