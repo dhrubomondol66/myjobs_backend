@@ -215,10 +215,17 @@ REST_FRAMEWORK = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://[IP_ADDRESS]/1",
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
     }
 }
+# Uncomment below for Redis in production:
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.redis.RedisCache",
+#         "LOCATION": os.getenv("REDIS_URL", "redis://127.0.0.1:6379/1"),
+#     }
+# }
 
 CORS_ALLOW_ALL_ORIGINS = True
 
