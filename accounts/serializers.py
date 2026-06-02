@@ -1,4 +1,5 @@
 from rest_framework import serializers
+import os
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.tokens import default_token_generator
@@ -61,12 +62,13 @@ class ForgotPasswordSerializer(serializers.Serializer):
             force_bytes(user.pk)
         )
         token = default_token_generator.make_token(user)
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
         reset_link = (
-            f"http://localhost:5173/reset-password/{uid}/{token}/"
+            f"{frontend_url}/reset-password/{uid}/{token}/"
         )
         send_mail(
             subject="Reset Your Password",
-            message=f"Click the link to reset password:\\n{reset_link}",
+            message=f"Click the link to reset password:\n{reset_link}",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[email],
             fail_silently=False,
