@@ -227,7 +227,17 @@ CACHES = {
 #     }
 # }
 
+# Replace this:
 CORS_ALLOW_ALL_ORIGINS = True
+
+# With this:
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://myjobs-frontend.onrender.com",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 from datetime import timedelta
 

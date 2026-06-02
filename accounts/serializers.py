@@ -1,11 +1,11 @@
 from rest_framework import serializers
 import os
+import requests
 from .models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.core.mail import send_mail
 from django.contrib.auth.password_validation import validate_password
 from django.conf import settings
 
@@ -62,17 +62,46 @@ class ForgotPasswordSerializer(serializers.Serializer):
             force_bytes(user.pk)
         )
         token = default_token_generator.make_token(user)
-        frontend_url = os.getenv('FRONTEND_URL')
+        frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
         reset_link = (
             f"{frontend_url}/reset-password/{uid}/{token}/"
         )
-        send_mail(
-            subject="Reset Your Password",
-            message=f"Click the link to reset password:\n{reset_link}",
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=False,
-        )
+        
+        # Send email using EmailJS
+        emailjs_service_id = os.getenv('EMAILJS_SERVICE_ID')
+        emailjs_template_id = os.getenv('EMAILJS_TEMPLATE_ID')
+        emailjs_public_key = os.getenv('EMAILJS_PUBLIC_KEY')
+        sender_email = os.getenv('EMAILJS_SENDER_EMAIL')
+        
+        # Correct EmailJS API format
+        emailjs_payload = {
+            'service_id': emailjs_service_id,
+            'template_id': emailjs_template_id,
+            'user_id': emailjs_public_key,
+            'template_params': {
+                'to_email': email,
+                'from_email': sender_email,
+                'user_name': user.username,
+                'reset_link': reset_link,
+            }
+        }
+        
+        try:
+            response = requests.post(
+                'https://api.emailjs.com/api/v1.0/email/send',
+                json=emailjs_payload,
+                timeout=10
+            )
+            
+            if response.status_code != 200:
+                error_msg = f"EmailJS API returned {response.status_code}: {response.text}"
+                raise serializers.ValidationError(error_msg)
+                
+        except requests.exceptions.RequestException as e:
+            raise serializers.ValidationError(
+                f"Failed to send password reset email: {str(e)}"
+            )
+        
         return user
 
 class ResetPasswordSerializer(serializers.Serializer):
