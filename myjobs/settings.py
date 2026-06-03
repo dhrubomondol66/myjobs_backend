@@ -13,6 +13,9 @@ import os
 from decouple import config
 import environ
 from dotenv import load_dotenv
+from datetime import timedelta
+PASSWORD_RESET_TIMEOUT = 86400
+
 load_dotenv()
 
 env = environ.Env()
