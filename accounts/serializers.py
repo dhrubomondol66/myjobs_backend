@@ -62,7 +62,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
         user = User.objects.get(email=email)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        frontend_url = os.getenv('FRONTEND_URL')
+        frontend_url = os.getenv('FRONTEND_URL').rstrip('/')
         reset_link = f"{frontend_url}/#/reset-password/{uid}/{token}/"
 
         configuration = sib_api_v3_sdk.Configuration()
