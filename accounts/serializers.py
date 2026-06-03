@@ -1,9 +1,6 @@
-import token
-
 from django.core.mail import send_mail
 from rest_framework import serializers
 import os
-
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from .models import User
@@ -66,7 +63,7 @@ class ForgotPasswordSerializer(serializers.Serializer):
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
         frontend_url = os.getenv('FRONTEND_URL')
-        reset_link = f"{frontend_url}/reset-password/{uid}/{token}/"
+        reset_link = f"{frontend_url}/#/reset-password/{uid}/{token}/"
 
         configuration = sib_api_v3_sdk.Configuration()
         configuration.api_key['api-key'] = os.getenv('BREVO_API_KEY')
